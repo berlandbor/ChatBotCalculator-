@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Калькулятор Чат-бот</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+        }
+
+        .container {
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 300px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        .chat-box {
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-bottom: 10px;
+            height: 200px;
+            overflow-y: auto;
+            border-radius: 5px;
+            background: #fafafa;
+        }
+
+        #input {
+            width: calc(100% - 22px);
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            margin-bottom: 10px;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            background-color: #007BFF;
+            color: #fff;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .message {
+            margin: 5px 0;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        .user {
+            background-color: #d1e7dd;
+            text-align: right;
+        }
+
+        .bot {
+            background-color: #f8d7da;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Калькулятор Чат-бот</h1>
+        <div class="chat-box" id="chat-box"></div>
+        <input id="input" type="text" placeholder="Введите здесь...">
+        <button onclick="sendInput()">Отправить</button>
+    </div>
+    <script>
+        let step = 0;
+        let firstNumber, operator, secondNumber;
+
+        function addMessage(content, sender) {
+            const chatBox = document.getElementById('chat-box');
+            const message = document.createElement('div');
+            message.className = `message ${sender}`;
+            message.textContent = content;
+            chatBox.appendChild(message);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        function sendInput() {
+            const inputField = document.getElementById('input');
+            const input = inputField.value.trim();
+            if (input === "") return;
+
+            addMessage(`Вы: ${input}`, 'user');
+            inputField.value = '';
+
+            switch (step) {
+                case 0:
+                    firstNumber = parseFloat(input);
+                    if (isNaN(firstNumber)) {
+                        addMessage("Бот: Пожалуйста, введите правильное число.", 'bot');
+                    } else {
+                        addMessage("Бот: Введите оператор (+, -, *, /):", 'bot');
+                        step = 1;
+                    }
+                    break;
+                case 1:
+                    if (["+", "-", "*", "/"].includes(input)) {
+                        operator = input;
+                        addMessage("Бот: Введите, пожалуйста, второе число:", 'bot');
+                        step = 2;
+                    } else {
+                        addMessage("Бот: Пожалуйста, введите правильный оператор (+, -, *, /):", 'bot');
+                    }
+                    break;
+                case 2:
+                    secondNumber = parseFloat(input);
+                    if (isNaN(secondNumber)) {
+                        addMessage("Бот: Пожалуйста, введите правильное число.", 'bot');
+                    } else {
+                        calculateResult();
+                    }
+                    break;
+            }
+        }
+
+        function calculateResult() {
+            let result;
+            switch (operator) {
+                case '+':
+                    result = firstNumber + secondNumber;
+                    break;
+                case '-':
+                    result = firstNumber - secondNumber;
+                    break;
+                case '*':
+                    result = firstNumber * secondNumber;
+                    break;
+                case '/':
+                    if (secondNumber === 0) {
+                        result = 'Ошибка: Деление на ноль';
+                    } else {
+                        result = firstNumber / secondNumber;
+                    }
+                    break;
+            }
+            addMessage(`Бот: Результат ${result}`, 'bot');
+            resetChat();
+        }
+
+        function resetChat() {
+            step = 0;
+            firstNumber = operator = secondNumber = null;
+            setTimeout(() => {
+                addMessage("Бот: И так следующий пример... Введите, пожалуйста, первое число:", 'bot');
+            }, 2000);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            addMessage("Бот: Привет Друг! Я здесь для того, чтобы помочь тебе посчитать. Введите, пожалуйста, первое число:", 'bot');
+        });
+    </script>
+</body>
+</html>
